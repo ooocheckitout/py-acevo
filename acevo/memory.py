@@ -4,13 +4,19 @@ import ctypes
 from contextlib import ExitStack
 from ctypes import wintypes
 from types import TracebackType
-from typing import TypeVar
+from typing import NamedTuple, TypeVar
 
 from .models.graphics import GraphicsPage
 from .models.physics import PhysicsPage
 from .models.static import StaticPage
 
 Page = TypeVar("Page", bound=ctypes.Structure)
+
+
+class Snapshot(NamedTuple):
+    static: StaticPage
+    physics: PhysicsPage
+    graphics: GraphicsPage
 
 
 class ACEvoSharedMemory:
@@ -78,9 +84,9 @@ class ACEvoSharedMemory:
         """Return snapshot of a graphics page. Updates every rendered frame."""
         return self._read_page(GraphicsPage)
 
-    def read_snapshot(self) -> tuple[StaticPage, PhysicsPage, GraphicsPage]:
+    def read_snapshot(self) -> Snapshot:
         """Return snapshot of all pages."""
-        return self.read_static(), self.read_physics(), self.read_graphics()
+        return Snapshot(self.read_static(), self.read_physics(), self.read_graphics())
 
     def _read_page(self, page_type: type[Page]) -> Page:
         return page_type.from_buffer_copy(
