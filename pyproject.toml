@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools >= 77.0.3"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "py-acevo"
+dynamic = ["version"]
+description = "Read Assetto Corsa EVO shared memory on Windows."
+readme = "README.MD"
+requires-python = ">= 3.9"
+classifiers = ["Operating System :: Microsoft :: Windows"]
+
+[tool.setuptools.packages.find]
+include = ["acevo*"]
+
+[tool.setuptools.dynamic]
+version = { file = ["VERSION"] }

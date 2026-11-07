@@ -1,0 +1,49 @@
+from enum import IntEnum
+
+
+class ACEVO_STATUS(IntEnum):
+    AC_OFF = 0
+    AC_REPLAY = 1
+    AC_LIVE = 2
+    AC_PAUSE = 3
+
+
+class ACEVO_SESSION_TYPE(IntEnum):
+    AC_UNKNOWN = -1
+    AC_TIME_ATTACK = 0
+    AC_RACE = 1
+    AC_HOT_STINT = 2
+    AC_CRUISE = 3
+
+
+class ACEVO_FLAG_TYPE(IntEnum):
+    AC_NO_FLAG = 0
+    AC_WHITE_FLAG = 1
+    AC_GREEN_FLAG = 2
+    AC_RED_FLAG = 3
+    AC_BLUE_FLAG = 4
+    AC_YELLOW_FLAG = 5
+    AC_BLACK_FLAG = 6
+    AC_BLACK_WHITE_FLAG = 7
+    AC_CHECKERED_FLAG = 8
+    AC_ORANGE_CIRCLE_FLAG = 9
+    AC_RED_YELLOW_STRIPES_FLAG = 10
+
+
+class ACEVO_CAR_LOCATION(IntEnum):
+    ACEVO_UNASSIGNED = 0
+    ACEVO_PITLANE = 1
+    ACEVO_PITENTRY = 2
+    ACEVO_PITEXIT = 3
+    ACEVO_TRACK = 4
+
+
+class ACEVO_ENGINE_TYPE(IntEnum):
+    ACEVO_INTERNAL_COMBUSTION = 0
+    ACEVO_ELECTRIC_MOTOR = 1
+
+
+class ACEVO_STARTING_GRIP(IntEnum):
+    ACEVO_GREEN = 0
+    ACEVO_FAST = 1
+    ACEVO_OPTIMUM = 2
