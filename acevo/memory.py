@@ -12,6 +12,26 @@ from .models.static import StaticPage
 
 Page = TypeVar("Page", bound=ctypes.Structure)
 
+_kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+_kernel32.OpenFileMappingW.argtypes = (
+    wintypes.DWORD,
+    wintypes.BOOL,
+    wintypes.LPCWSTR,
+)
+_kernel32.OpenFileMappingW.restype = wintypes.HANDLE
+_kernel32.MapViewOfFile.argtypes = (
+    wintypes.HANDLE,
+    wintypes.DWORD,
+    wintypes.DWORD,
+    wintypes.DWORD,
+    ctypes.c_size_t,
+)
+_kernel32.MapViewOfFile.restype = ctypes.c_void_p
+_kernel32.UnmapViewOfFile.argtypes = (ctypes.c_void_p,)
+_kernel32.UnmapViewOfFile.restype = wintypes.BOOL
+_kernel32.CloseHandle.argtypes = (wintypes.HANDLE,)
+_kernel32.CloseHandle.restype = wintypes.BOOL
+
 
 class Snapshot(NamedTuple):
     static: StaticPage
@@ -23,25 +43,6 @@ class ACEvoSharedMemory:
     """Keep EVO shared memory open inside a with block and return copied snapshots."""
 
     def __init__(self) -> None:
-        self._kernel32 = kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
-        kernel32.OpenFileMappingW.argtypes = (
-            wintypes.DWORD,
-            wintypes.BOOL,
-            wintypes.LPCWSTR,
-        )
-        kernel32.OpenFileMappingW.restype = wintypes.HANDLE
-        kernel32.MapViewOfFile.argtypes = (
-            wintypes.HANDLE,
-            wintypes.DWORD,
-            wintypes.DWORD,
-            wintypes.DWORD,
-            ctypes.c_size_t,
-        )
-        kernel32.MapViewOfFile.restype = ctypes.c_void_p
-        kernel32.UnmapViewOfFile.argtypes = (ctypes.c_void_p,)
-        kernel32.UnmapViewOfFile.restype = wintypes.BOOL
-        kernel32.CloseHandle.argtypes = (wintypes.HANDLE,)
-        kernel32.CloseHandle.restype = wintypes.BOOL
         self._resources = ExitStack()
         self._pages: dict[type[ctypes.Structure], int] = {}
 
@@ -94,8 +95,7 @@ class ACEvoSharedMemory:
         )
 
     def _open_page(self, name: str, page_type: type[Page]) -> int:
-        kernel32 = self._kernel32
-        handle = kernel32.OpenFileMappingW(4, False, name)
+        handle = _kernel32.OpenFileMappingW(4, False, name)
         if not handle:
             error = ctypes.get_last_error()
             if error == 2:
@@ -103,9 +103,9 @@ class ACEvoSharedMemory:
                 raise FileNotFoundError(message)
             raise ctypes.WinError(ctypes.get_last_error())
 
-        self._resources.callback(kernel32.CloseHandle, handle)
-        address = kernel32.MapViewOfFile(handle, 4, 0, 0, ctypes.sizeof(page_type))
+        self._resources.callback(_kernel32.CloseHandle, handle)
+        address = _kernel32.MapViewOfFile(handle, 4, 0, 0, ctypes.sizeof(page_type))
         if not address:
             raise ctypes.WinError(ctypes.get_last_error())
-        self._resources.callback(kernel32.UnmapViewOfFile, address)
+        self._resources.callback(_kernel32.UnmapViewOfFile, address)
         return address
