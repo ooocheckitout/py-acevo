@@ -10,17 +10,11 @@
     {
       "label": "build",
       "type": "shell",
-      "command": ".venv/Scripts/python -m pip install --group dev; Remove-Item -Recurse -Force dist, *.egg-info; .venv/Scripts/python -m build",
+      "command": ".venv/Scripts/python -m pip install --group dev; .venv/Scripts/python -m build",
       "group": {
         "kind": "build",
         "isDefault": true
       },
-      "problemMatcher": []
-    },
-    {
-      "label": "publish",
-      "type": "shell",
-      "command": ".venv/Scripts/python -m twine upload dist/*",
       "problemMatcher": []
     }
   ]
